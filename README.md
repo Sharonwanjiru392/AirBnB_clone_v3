@@ -1,6 +1,6 @@
 This project has been done by Sharon Wanjiru and Callistus Namurende.
 
-0x02. AirBnB clone - MySQL
+0x05. AirBnB clone - RESTful API
 
 0. Fork me if you can!
 
@@ -9,7 +9,7 @@ This project has been done by Sharon Wanjiru and Callistus Namurende.
 2. Console improvements
 
 3. MySQL setup development
-script that prepares a MySQL server for the project:
+script that prepares a RESTful API server for the project:
 
 A database hbnb_dev_db
 A new user hbnb_dev (in localhost)
@@ -19,7 +19,7 @@ hbnb_dev should have SELECT privilege on the database performance_schema (and on
 If the database hbnb_dev_db or the user hbnb_dev already exists
 
 4. MySQL setup test
-script that prepares a MySQL server for the project:
+script that prepares a RESTful API server for the project:
 
 A database hbnb_test_db
 A new user hbnb_test (in localhost)
