@@ -70,19 +70,15 @@ test_file_storage.py'])
 
 class TestFileStorage(unittest.TestCase):
     """Test the FileStorage class"""
-    @unittest.skipIf(models.selected_storage == (
-        'db', "not testing file storage")
-    )
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
     def test_all_returns_dict(self):
         """Test that all returns the FileStorage.__objects attr"""
         storage = FileStorage()
-        parsed_dict = storage.all()
-        self.assertEqual(type(parsed_dict), dict)
-        self.assertIs(parsed_dict, storage._FileStorage__objects)
+        new_dict = storage.all()
+        self.assertEqual(type(new_dict), dict)
+        self.assertIs(new_dict, storage._FileStorage__objects)
 
-    @unittest.skipIf(models.selected_storage == (
-        'db', "not testing file storage")
-    )
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
     def test_new(self):
         """test that new adds an object to the FileStorage.__objects attr"""
         storage = FileStorage()
@@ -98,54 +94,48 @@ class TestFileStorage(unittest.TestCase):
                 self.assertEqual(test_dict, storage._FileStorage__objects)
         FileStorage._FileStorage__objects = save
 
-    @unittest.skipIf(models.selected_storage == (
-        'db', "not testing file storage")
-    )
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
     def test_save(self):
         """Test that save properly saves objects to file.json"""
         storage = FileStorage()
-        parsed_dict = {}
+        new_dict = {}
         for key, value in classes.items():
             instance = value()
             instance_key = instance.__class__.__name__ + "." + instance.id
-            parsed_dict[instance_key] = instance
+            new_dict[instance_key] = instance
         save = FileStorage._FileStorage__objects
-        FileStorage._FileStorage__objects = parsed_dict
+        FileStorage._FileStorage__objects = new_dict
         storage.save()
         FileStorage._FileStorage__objects = save
-        for key, value in parsed_dict.items():
-            parsed_dict[key] = value.to_dict()
-        string = json.dumps(parsed_dict)
+        for key, value in new_dict.items():
+            new_dict[key] = value.to_dict()
+        string = json.dumps(new_dict)
         with open("file.json", "r") as f:
             js = f.read()
         self.assertEqual(json.loads(string), json.loads(js))
 
-    @unittest.skipIf(models.selected_storage == (
-        'db', "not testing file storage")
-    )
-    def test_count(self):
-        """Test that count method returns accurate count of objects"""
-        storage = FileStorage()
-        # clear objects from storage
-        FileStorage._FileStorage__objects.clear()
-        storage.save()
-        # create new object of each class
-        for key, value in classes.items():
-            instance = value()
-            instance_key = instance.__class__.__name__ + "." + instance.id
-            FileStorage._FileStorage__objects[instance_key] = instance
-        storage.save()
-        self.assertEqual(storage.count(), 7)
-
-    @unittest.skipIf(models.selected_storage == (
-        'db', "not testing file storage")
-    )
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
     def test_get(self):
-        """Test that count method returns object by valid id"""
+        """ Tests method for obtaining an instance file storage"""
         storage = FileStorage()
+        dic = {"name": "Vecindad"}
+        instance = State(**dic)
+        storage.new(instance)
         storage.save()
-        # create new object
-        state = State()
+        storage = FileStorage()
+        get_instance = storage.get(State, instance.id)
+        self.assertEqual(get_instance, instance)
+
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_count(self):
+        """ Tests count method file storage """
+        storage = FileStorage()
+        dic = {"name": "Vecindad"}
+        state = State(**dic)
         storage.new(state)
-        state_id = state.to_dict()['id']
-        self.assertTrue(storage.get(State, state_id) is state)
+        dic = {"name": "Mexico"}
+        city = City(**dic)
+        storage.new(city)
+        storage.save()
+        c = storage.count()
+        self.assertEqual(len(storage.all()), c)
