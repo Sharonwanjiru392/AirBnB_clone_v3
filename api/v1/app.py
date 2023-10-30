@@ -1,8 +1,4 @@
 #!/usr/bin/python3
-<<<<<<< HEAD
-=======
-
->>>>>>> 721b0e5b17b88ca72e7bb7ea35e4d8c8a92ebf3f
 """ Flask Application """
 from models import storage
 from api.v1.views import app_views
@@ -12,29 +8,18 @@ from flask_cors import CORS
 from flasgger import Swagger
 from flasgger.utils import swag_from
 
-<<<<<<< HEAD
 app = Flask(__name__)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 app.register_blueprint(app_views)
 cors = CORS(app, resources={r"/*": {"origins": "0.0.0.0"}})
 
-=======
-
-app = Flask(__name__)
-app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
-app.register_blueprint(app_views)
-cors = CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
->>>>>>> 721b0e5b17b88ca72e7bb7ea35e4d8c8a92ebf3f
 
 @app.teardown_appcontext
 def close_db(error):
     """ Close Storage """
     storage.close()
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 721b0e5b17b88ca72e7bb7ea35e4d8c8a92ebf3f
 @app.errorhandler(404)
 def not_found(error):
     """ 404 Error
@@ -45,10 +30,7 @@ def not_found(error):
     """
     return make_response(jsonify({'error': "Not found"}), 404)
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 721b0e5b17b88ca72e7bb7ea35e4d8c8a92ebf3f
 app.config['SWAGGER'] = {
     'title': 'AirBnB clone Restful API',
     'uiversion': 3
