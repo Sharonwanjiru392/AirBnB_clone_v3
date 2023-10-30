@@ -1,7 +1,7 @@
-#!/usr/bin/python3
-""" console """
+ole """
 
 import cmd
+from datetime import datetime
 import models
 from models.amenity import Amenity
 from models.base_model import BaseModel
@@ -10,37 +10,10 @@ from models.place import Place
 from models.review import Review
 from models.state import State
 from models.user import User
-import shlex
-import re
+import shlex  # for splitting the line along spaces except in double quotes
 
-# Dictionary to map class names to their corresponding classes
-classes = {
-    "Amenity": Amenity,
-    "BaseModel": BaseModel,
-    "City": City,
-    "Place": Place,
-    "Review": Review,
-    "State": State,
-    "User": User
-}
-
-
-def parse(argmt):
-    curly_match = re.search(r"\{(.*?)\}", argmt)
-    bracket_match = re.search(r"\[(.*?)\]", argmt)
-    if curly_match is None:
-        if bracket_match is None:
-            return [item.strip(",") for item in argmt.split()]
-        else:
-            split_val = argmt[:bracket_match.span()[0]].split()
-            result_list = [item.strip(",") for item in split_val]
-            result_list.append(bracket_match.group())
-            return result_list
-    else:
-        split_val = argmt[:curly_match.span()[0]].split()
-        result_list = [item.strip(",") for item in split_val]
-        result_list.append(curly_match.group())
-        return result_list
+classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
+           "Place": Place, "Review": Review, "State": State, "User": User}
 
 
 class HBNBCommand(cmd.Cmd):
@@ -59,13 +32,9 @@ class HBNBCommand(cmd.Cmd):
         """Quit command to exit the program"""
         return True
 
-    def do_ls(self, arg):
-        """List all available classes"""
-        print(", ".join(classes.keys()))
-
     def _key_value_parser(self, args):
         """creates a dictionary from a list of strings"""
-        parsed_dict = {}
+        new_dict = {}
         for arg in args:
             if "=" in arg:
                 kvp = arg.split('=', 1)
@@ -76,13 +45,13 @@ class HBNBCommand(cmd.Cmd):
                 else:
                     try:
                         value = int(value)
-                    except ValueError:
+                    except Exception:
                         try:
                             value = float(value)
-                        except ValueError:
+                        except Exception:
                             continue
-                parsed_dict[key] = value
-        return parsed_dict
+                new_dict[key] = value
+        return new_dict
 
     def do_create(self, arg):
         """Creates a new instance of a class"""
@@ -91,8 +60,8 @@ class HBNBCommand(cmd.Cmd):
             print("** class name missing **")
             return False
         if args[0] in classes:
-            parsed_dict = self._key_value_parser(args[1:])
-            instance = classes[args[0]](**parsed_dict)
+            new_dict = self._key_value_parser(args[1:])
+            instance = classes[args[0]](**new_dict)
         else:
             print("** class doesn't exist **")
             return False
@@ -154,7 +123,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_update(self, arg):
         """Update an instance based on the class name, id, attribute & value"""
-        args = parse(arg)
+        args = shlex.split(arg)
         integers = ["number_rooms", "number_bathrooms", "max_guest",
                     "price_by_night"]
         floats = ["latitude", "longitude"]
@@ -164,47 +133,31 @@ class HBNBCommand(cmd.Cmd):
             if len(args) > 1:
                 k = args[0] + "." + args[1]
                 if k in models.storage.all():
-                    if len(args) > 3:
-                        if args[0] == "Place":
-                            if args[2] in integers:
-                                try:
-                                    args[3] = int(args[3])
-                                except ValueError:
-                                    args[3] = 0
-                            elif args[2] in floats:
-                                try:
-                                    args[3] = float(args[3])
-                                except ValueError:
-                                    args[3] = 0.0
-                        setattr(models.storage.all()[k], args[2], args[3])
-                        models.storage.all()[k].save()
+                    if len(args) > 2:
+                        if len(args) > 3:
+                            if args[0] == "Place":
+                                if args[2] in integers:
+                                    try:
+                                        args[3] = int(args[3])
+                                    except Exception:
+                                        args[3] = 0
+                                elif args[2] in floats:
+                                    try:
+                                        args[3] = float(args[3])
+                                    except Exception:
+                                        args[3] = 0.0
+                            setattr(models.storage.all()[k], args[2], args[3])
+                            models.storage.all()[k].save()
+                        else:
+                            print("** value missing **")
                     else:
-                        print("** value missing **")
+                        print("** attribute name missing **")
                 else:
                     print("** no instance found **")
             else:
                 print("** instance id missing **")
         else:
             print("** class doesn't exist **")
-
-    def do_count(self, arg):
-        """Usage: count <class>
-        Prints the number of instances of a given class.
-        """
-        args = arg.split()
-        if len(args) == 0:
-            print("** class name missing **")
-            return
-        if args[0] in classes:
-            instance_count = sum(1 for obj in models.storage.all().values()
-                                 if isinstance(obj, classes[args[0]]))
-            print(instance_count)
-        else:
-            print("** class doesn't exist **")
-
-    def do_exit(self, arg):
-        """Exit the program"""
-        return True
 
 
 if __name__ == '__main__':
