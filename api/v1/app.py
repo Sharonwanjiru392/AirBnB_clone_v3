@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 """ Flask Application """
+from api.v1 import app
+from your_module import storage_t
 from models import storage
 from api.v1.views import app_views
 from os import environ
